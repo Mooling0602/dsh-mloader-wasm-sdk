@@ -1,0 +1,9 @@
+{
+  "id": "wasm-sdk-example-go",
+  "name": "WASM SDK Go Example",
+  "version": "0.1.0",
+  "backend": "wasm",
+  "entry": "@ENTRY@",
+  "enabled": true,
+  "timeouts": { "startupMs": 10000, "callMs": 30000 }
+}

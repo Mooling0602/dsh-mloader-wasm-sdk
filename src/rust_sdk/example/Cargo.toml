@@ -1,0 +1,20 @@
+[package]
+name = "wasm-sdk-example"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+description = "Acceptance example for the dsh-mloader WebAssembly SDK"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+dsh-mloader-wasm-sdk = { path = ".." }
+
+[profile.release]
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = "symbols"

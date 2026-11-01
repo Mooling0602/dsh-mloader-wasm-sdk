@@ -1,0 +1,32 @@
+[package]
+name = "dsh-mloader-wasm-sdk"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+description = "Rust SDK for WebAssembly plugins hosted by dsh-mloader"
+license = "MIT"
+repository = "https://github.com/Mooling0602/dsh-mloader-wasm-sdk"
+homepage = "https://github.com/Mooling0602/dsh-mloader"
+documentation = "https://docs.rs/dsh-mloader-wasm-sdk"
+readme = "README.md"
+keywords = ["dsh", "deepseek-harness", "cordis", "wasm", "plugin"]
+categories = ["wasm", "development-tools::ffi"]
+include = [
+  "lib.rs",
+  "abi.rs",
+  "arg.rs",
+  "declaration.rs",
+  "error.rs",
+  "Cargo.toml",
+  "README.md",
+  "LICENSE",
+]
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+serde_json = "1.0"
+
+[workspace]
+exclude = ["example"]
