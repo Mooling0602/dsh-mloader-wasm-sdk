@@ -6,19 +6,19 @@ The WebAssembly ABI is language neutral. A plugin is a WebAssembly module that e
 
 ## Languages
 
-| Language | Directory | Package form | Needs WASI | Status |
+| Language | Directory | Package form | Startup shape | Status |
 | --- | --- | --- | --- | --- |
-| Rust | `src/rust_sdk` | Cargo crate | no | ready |
-| Zig | `src/zig_sdk` | source module | no | ready |
-| Go | `src/go_sdk` | Go module | reactor | ready |
-| C | not yet | source module | no | planned |
+| Rust | `src/rust_sdk` | Cargo crate | plain | ready |
+| Zig | `src/zig_sdk` | source module | plain | ready |
+| Go | `src/go_sdk` | Go module | WASI reactor | ready |
+| C | `src/c_sdk` | source files | reactor | ready |
 
-All three implementations target core ABI version 1 and pass the same conformance suite. The Go implementation is a WASI reactor, so it needs a dsh-mloader build that initializes a reactor through `_initialize` before the version check.
+All four implementations target core ABI version 1 and pass the same conformance suite. The Go and C modules export `_initialize`, so they need a dsh-mloader build that initializes a reactor before the version check. The Go module imports the WASI preview1 namespace, while the C module links wasi-libc statically and imports nothing.
 
 ## Requirements
 
 - Rust stable with the `wasm32-unknown-unknown` target for the Rust SDK.
-- Zig 0.17 for the Zig SDK.
+- Zig 0.17 for the Zig SDK. The same toolchain provides `zig cc` and wasi-libc for the C SDK.
 - Go 1.24 or newer for the Go SDK.
 - A wasm linker. The Rust example needs `lld`.
 - Node.js 20 or newer for the conformance suite.
@@ -47,6 +47,9 @@ node conformance/abi.mjs --wasm src/zig_sdk/example/dist/wasm-sdk-example/wasm_s
 
 ./src/go_sdk/example/build.sh
 node conformance/abi.mjs --wasm src/go_sdk/example/dist/wasm-sdk-example-go/wasm_sdk_example.wasm
+
+./src/c_sdk/example/build.sh
+node conformance/abi.mjs --wasm src/c_sdk/example/dist/wasm-sdk-example-c/wasm_sdk_example.wasm
 ```
 
 The suite checks the host import boundary, the six core exports, the startup shape, the ABI version, the declaration, tool calls, error replies, malformed requests, event delivery and result buffer reuse. It builds no module of its own; it runs whatever `.wasm` path it is given.
@@ -58,6 +61,7 @@ Install at most one example plugin at a time. They share tool names, so a second
 - [Rust SDK](src/rust_sdk/README.md)
 - [Zig SDK](src/zig_sdk/README.md)
 - [Go SDK](src/go_sdk/README.md)
+- [C SDK](src/c_sdk/README.md)
 
 ## Contract documents
 
@@ -71,13 +75,14 @@ The contract is owned by the loader repository. The WebAssembly specific parts a
 | `src/rust_sdk` | Rust crate, build helpers and example |
 | `src/zig_sdk` | Zig module, build script and example |
 | `src/go_sdk` | Go module, build script and example |
+| `src/c_sdk` | C sources, build script and example |
 | `flake.nix`, `flake.lock` | development shell and pinned nixpkgs input |
 | `CONTEXT.md` | technical detail, build recipes and invariants |
 | `AGENTS.md` | coding rules for AI agents and maintainers |
 
 ## Status
 
-The two native-target SDKs, Rust and Zig, produce modules without host imports. The Go SDK produces a WASI reactor, which the loader initializes before the ABI version check. None of the three packages is published yet; consume them from this repository until a release is cut.
+Rust, Zig and C produce modules without host imports. Go produces a WASI reactor that imports the preview1 namespace. C and Go export `_initialize`, which the loader calls before the ABI version check. None of the packages is published yet; consume them from this repository until a release is cut.
 
 ## License
 

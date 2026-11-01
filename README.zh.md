@@ -6,19 +6,19 @@ WebAssembly ABI 是语言中立的。插件是一个 WebAssembly 模块，导出
 
 ## 语言
 
-| 语言 | 目录 | 分发形态 | 需要 WASI | 状态 |
+| 语言 | 目录 | 分发形态 | 启动形态 | 状态 |
 | --- | --- | --- | --- | --- |
-| Rust | `src/rust_sdk` | Cargo crate | 否 | 可用 |
-| Zig | `src/zig_sdk` | 源码模块 | 否 | 可用 |
-| Go | `src/go_sdk` | Go module | reactor | 可用 |
-| C | 尚未添加 | 源码模块 | 否 | 计划中 |
+| Rust | `src/rust_sdk` | Cargo crate | 普通 | 可用 |
+| Zig | `src/zig_sdk` | 源码模块 | 普通 | 可用 |
+| Go | `src/go_sdk` | Go module | WASI reactor | 可用 |
+| C | `src/c_sdk` | 源码文件 | reactor | 可用 |
 
-三种实现都面向核心 ABI 版本 1，并共用同一套一致性套件。Go 实现是 WASI reactor，需要 dsh-mloader 在版本检查之前通过 `_initialize` 初始化 reactor。
+四种实现都面向核心 ABI 版本 1，并共用同一套一致性套件。Go 与 C 模块导出 `_initialize`，需要 dsh-mloader 在版本检查之前初始化 reactor。Go 模块导入 WASI preview1 命名空间，C 模块静态链接 wasi-libc 且不导入任何函数。
 
 ## 环境要求
 
 - Rust stable，并安装 `wasm32-unknown-unknown` 目标，用于 Rust SDK。
-- Zig 0.17，用于 Zig SDK。
+- Zig 0.17，用于 Zig SDK。同一工具链通过 `zig cc` 与 wasi-libc 编译 C SDK。
 - Go 1.24 或更新版本，用于 Go SDK。
 - 一个 wasm 链接器。Rust 示例需要 `lld`。
 - Node.js 20 或更新版本，用于一致性套件。
@@ -47,6 +47,9 @@ node conformance/abi.mjs --wasm src/zig_sdk/example/dist/wasm-sdk-example/wasm_s
 
 ./src/go_sdk/example/build.sh
 node conformance/abi.mjs --wasm src/go_sdk/example/dist/wasm-sdk-example-go/wasm_sdk_example.wasm
+
+./src/c_sdk/example/build.sh
+node conformance/abi.mjs --wasm src/c_sdk/example/dist/wasm-sdk-example-c/wasm_sdk_example.wasm
 ```
 
 套件检查宿主导入边界、六个核心导出、启动形态、ABI 版本、声明对象、工具调用、错误回复、畸形请求、事件投递与结果缓冲区复用。它不构建任何模块，只运行传入的 `.wasm` 路径。
@@ -58,6 +61,7 @@ node conformance/abi.mjs --wasm src/go_sdk/example/dist/wasm-sdk-example-go/wasm
 - [Rust SDK](src/rust_sdk/README.md)
 - [Zig SDK](src/zig_sdk/README.md)
 - [Go SDK](src/go_sdk/README.md)
+- [C SDK](src/c_sdk/README.md)
 
 ## 契约文档
 
@@ -71,13 +75,14 @@ node conformance/abi.mjs --wasm src/go_sdk/example/dist/wasm-sdk-example-go/wasm
 | `src/rust_sdk` | Rust crate、构建脚本与示例 |
 | `src/zig_sdk` | Zig 模块、构建脚本与示例 |
 | `src/go_sdk` | Go module、构建脚本与示例 |
+| `src/c_sdk` | C 源码、构建脚本与示例 |
 | `flake.nix`、`flake.lock` | 开发 shell 与固定的 nixpkgs 输入 |
 | `CONTEXT.md` | 技术细节、构建配方与不变量 |
 | `AGENTS.md` | 面向 AI agent 与维护者的编码规则 |
 
 ## 状态
 
-Rust 与 Zig 产出没有宿主导入的模块。Go SDK 产出 WASI reactor，加载器会在 ABI 版本检查之前初始化它。三个包都尚未发布；在发布之前请从本仓库引用。
+Rust、Zig 与 C 产出没有宿主导入的模块。Go 产出导入 preview1 命名空间的 WASI reactor。C 与 Go 导出 `_initialize`，加载器会在 ABI 版本检查之前调用它。所有包都尚未发布；在发布之前请从本仓库引用。
 
 ## 许可证
 

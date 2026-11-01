@@ -17,6 +17,7 @@ The contract documents are `docs/wasm/WasmABI.md` for the WebAssembly specific p
 | Rust | `src/rust_sdk` | freestanding wasm executable from a `cdylib` plugin crate | none | none beyond the core ABI |
 | Zig | `src/zig_sdk` | freestanding wasm executable, no entry point | none | none beyond the core ABI |
 | Go | `src/go_sdk` | WASI reactor built with `-buildmode=c-shared` | `wasi_snapshot_preview1` | the worker initializes `_initialize` before the version check |
+| C | `src/c_sdk` | reactor built with `zig cc -mexec-model=reactor` | none, libc links statically | the worker initializes `_initialize` directly before the version check |
 
 ## Repository map
 
@@ -34,6 +35,8 @@ The contract documents are `docs/wasm/WasmABI.md` for the WebAssembly specific p
 | `src/zig_sdk/example` | Zig acceptance example, build script and manifest template |
 | `src/go_sdk/go.mod`, `src/go_sdk/mloader.go` | Go module |
 | `src/go_sdk/example` | Go acceptance example, build script and manifest template |
+| `src/c_sdk/mloader.h`, `src/c_sdk/mloader.c` | C SDK header, ABI exports, JSON scanner and writer |
+| `src/c_sdk/example` | C acceptance example, build script and manifest template |
 | `flake.nix`, `flake.lock` | development shell and the pinned nixpkgs input |
 | `README.md`, `README.zh.md`, `CONTEXT.md`, `AGENTS.md`, `LICENSE`, `.markdownlint.json` | repository documents |
 
@@ -71,6 +74,14 @@ The SDK keeps one request buffer because the worker processes one request at a t
 
 The request is decoded with `encoding/json`; the decoded argument map is independent of the request buffer, so the host can free the buffer after the call.
 
+## C implementation
+
+The C SDK is a reactor compiled with `zig cc -target wasm32-wasi -mexec-model=reactor` against wasi-libc. The plugin defines the `ml_plugin_definition` symbol and the SDK defines the five exports, so a plugin does not write export wrappers. The SDK owns a request buffer from `malloc` and a growable result buffer, and it scans the request with a small JSON reader that also decodes string escapes.
+
+The C module uses wasi-libc for `malloc`, `snprintf`, `strtod` and `memcpy`, but every used symbol resolves statically, so the module imports no host function. It still exports the reactor `_initialize`, and the worker calls it directly because there is no WASI provider to call. A plugin builds a tool result as JSON text and passes it to `ml_reply_ok`; the SDK writes the frame and escapes the error message of a failed handler.
+
+Scalar argument accessors record the failure message themselves. A handler returns without another reply and the dispatcher sends the recorded error frame. The SDK does not parse result JSON beyond wrapping it, so a handler that builds invalid result text produces an invalid reply.
+
 ## The conformance contract
 
 Every language example declares exactly the same declaration and behaviour:
@@ -84,13 +95,13 @@ Every language example declares exactly the same declaration and behaviour:
 - an unknown tool produces a message that names the tool;
 - an unsupported operation and invalid JSON produce failed reply frames.
 
-`conformance/abi.mjs` performs these steps: it checks that every import is in `wasi_snapshot_preview1` or that there is none, instantiates the module with a minimal WASI provider when the module imports WASI, calls `_initialize` for a reactor or `_start` for a command module, checks the six core exports, the ABI version and the empty result buffer, then drives `apply`, `tool.call` and `event` as the worker does. It accepts one `--wasm` path and builds no module of its own, so it runs on any language output.
+`conformance/abi.mjs` performs these steps: it checks that every import is in `wasi_snapshot_preview1` or that there is none, instantiates the module with a minimal WASI provider when the module imports WASI, calls `_initialize` for a reactor through the WASI provider or directly, calls `_start` for a command module, checks the six core exports, the ABI version and the empty result buffer, then drives `apply`, `tool.call` and `event` as the worker does. It accepts one `--wasm` path and builds no module of its own, so it runs on any language output.
 
 Changing a tool name, a description, a required list or an error message is a change to all examples and to the suite at the same time. That keeps the language implementations comparable.
 
 ## Development environment
 
-`flake.nix` provides a dev shell with `rustc`, `cargo`, `rustfmt`, `clippy`, `lld`, `go`, `zig`, `nodejs` and `wabt`. The nixpkgs input is pinned in `flake.lock` to the revision from 2026-10-30. The shell also provides the `wasm32-unknown-unknown` standard library through the nixpkgs rustc package, so the Rust example builds without rustup.
+`flake.nix` provides a dev shell with `rustc`, `cargo`, `rustfmt`, `clippy`, `lld`, `go`, `zig`, `nodejs` and `wabt`. The nixpkgs input is pinned in `flake.lock` to the revision from 2026-10-30. The shell also provides the `wasm32-unknown-unknown` standard library through the nixpkgs rustc package, so the Rust example builds without rustup. Zig doubles as the C compiler: `zig cc` provides clang and wasi-libc for the C example.
 
 `nix develop` opens the shell; `nix fmt` formats the Nix files with `nixfmt`.
 
@@ -123,6 +134,12 @@ go vet ./...
 ./example/build.sh
 node ../../conformance/abi.mjs --wasm example/dist/wasm-sdk-example-go/wasm_sdk_example.wasm
 cd ../..
+
+# C module, example and conformance.
+cd src/c_sdk
+./example/build.sh
+node ../../conformance/abi.mjs --wasm example/dist/wasm-sdk-example-c/wasm_sdk_example.wasm
+cd ../..
 ```
 
 The example builds write into ignored directories: `target/`, `.zig-cache/`, `zig-out/` and `dist/`.
@@ -133,14 +150,17 @@ The example builds write into ignored directories: `target/`, `.zig-cache/`, `zi
 - The Rust crate is unpublished. It packages as a normal Cargo library with the sources, the crate README and a copy of the license.
 - The Zig module is consumed as source. There is no registry package yet.
 - The Go module path is `github.com/Mooling0602/dsh-mloader-wasm-sdk/src/go_sdk`. A released version needs a nested module tag such as `src/go_sdk/v0.1.0`. Until then consumers use a `replace` directive to the checkout.
-- The Go implementation additionally requires the loader's WASI reactor support. The dsh-mloader working tree that this repository was developed against contains that change; it is not committed yet.
+- The C sources are consumed as source. There is no registry package yet.
+- The Go and C implementations require loader support for reactor initialization. The dsh-mloader worker initializes a reactor through `_initialize` before the version check, through the WASI provider when the module imports WASI and directly otherwise.
 
 ## Pitfalls
 
 - A Zig module built with `-fno-entry` but without `-rdynamic` exports only memory. The plugin functions are dropped, and the loader reports missing exports.
 - A Go reactor traps on any export before `_initialize`. Do not call an exported function from the host before the worker has initialized the reactor.
-- The Go module is about 1.8 MB, the Zig example about 72 KB and the Rust example about 84 KB. Size is dominated by the runtime each language carries.
+- The Go module is about 1.8 MB, the C example about 1.1 MB, the Zig example about 72 KB and the Rust example about 84 KB. Size is dominated by the runtime each language carries.
+- The C SDK builds a tool result as JSON text. A handler that passes invalid JSON to `ml_reply_ok` produces an invalid reply, and the loader reports the call as failed. Use `%g` for numbers and `ml_json_escape` for strings.
+- `ml_string` decodes JSON escapes into a caller buffer and does not NUL terminate. The returned length is the contract.
 - `go vet` rejects converting the host supplied `uint32` pointer to `unsafe.Pointer`. The SDK compares the pointer instead, and a change that reintroduces the conversion breaks the vet run.
 - A rustc that does not bundle a linker fails the Rust example with `linker 'lld' not found`. The dev shell provides `lld`.
 - Node prints an experimental warning for `node:wasi` in the Go conformance run and in the worker. It is harmless.
-- The loader worker does not call `_initialize` for a module without WASI imports. A non-WASI module has no initialization hook and must be ready when it is instantiated.
+- A reactor without WASI imports gets `_initialize` called directly by the worker. A module that exports `_initialize` but does not expect the call is not a reactor and should not use that name.

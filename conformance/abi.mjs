@@ -4,10 +4,9 @@
  * Every language SDK in this repository ships an example plugin that declares
  * the same three tools and the same event subscription. The suite instantiates
  * the compiled module and drives it the way the dsh-mloader worker does:
- * instantiate, initialize a WASI reactor through _initialize when present,
- * check the ABI version, allocate a request buffer, write UTF-8 JSON, call
- * mloader_call, read the result at mloader_result_ptr and free the request
- * buffer.
+ * instantiate, initialize a reactor through _initialize when present, check the
+ * ABI version, allocate a request buffer, write UTF-8 JSON, call mloader_call,
+ * read the result at mloader_result_ptr and free the request buffer.
  *
  * Usage: node conformance/abi.mjs --wasm <path to .wasm>
  *
@@ -107,11 +106,16 @@ async function main() {
   for (const name of functions) check('exports ' + name, typeof exports[name] === 'function')
 
   section('3. The startup shape runs before the version check')
-  if (wasi !== null && typeof exports._initialize === 'function') {
-    // A WASI reactor traps when an export runs before _initialize, so the
-    // runtime is initialized before the version export is called.
-    wasi.initialize(instance)
-    check('the WASI reactor is initialized', true)
+  if (typeof exports._initialize === 'function') {
+    // A reactor traps when an export runs before _initialize, so the runtime is
+    // initialized before the version export is called. The hook is not WASI
+    // specific, which matches the worker.
+    if (wasi !== null) {
+      wasi.initialize(instance)
+    } else {
+      exports._initialize()
+    }
+    check('the reactor is initialized', true)
   } else if (wasi !== null && typeof exports._start === 'function') {
     // A WASI command module runs _start once and may call proc_exit.
     wasi.start(instance)

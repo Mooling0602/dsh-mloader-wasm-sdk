@@ -7,7 +7,7 @@ Rules for AI coding agents working in this repository. Follow them exactly. When
 - **Never create a commit without asking first.** Ask for approval every time, even if you have committed in this same session before.
 - **Commit messages must be reviewed by the user before the commit exists.** Draft the message, show it, and wait for approval.
 - **Never push without asking first.** Ask every time.
-- Do not run remote operations, including publishing to crates.io or a Go or Zig registry, without the user's explicit approval in the current session.
+- Do not run remote operations, including publishing to any package registry, without the user's explicit approval in the current session.
 
 ## 2. Commit messages: Conventional Commits
 
@@ -22,7 +22,7 @@ Follow [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0
 ```
 
 - **Types:** `feat`, `fix`, `docs`, `test`, `refactor`, `perf`, `build`, `ci`, `chore`, `style`, `revert`.
-- **Scope** is optional but preferred. Use the area touched, such as `sdk`, `rust`, `zig`, `go`, `conformance`, `flake`, `docs`, `test` or `deps`.
+- **Scope** is optional but preferred. Use the area touched, such as `sdk`, `rust`, `zig`, `go`, `c`, `conformance`, `flake`, `docs`, `test` or `deps`.
 - **Description** is lowercase, imperative and carries no trailing period. Describe the change, not the file.
 - **Body** explains why the change was made. It is mandatory for a bug fix and for any change to the ABI contract or the reply frames.
 - **Do not wrap the message by hand.** The subject and each body paragraph are one complete line, with no character limit.
@@ -48,6 +48,12 @@ Follow [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0
 - Every exported identifier carries a doc comment that begins with its name, following the standard Go convention.
 - Package documentation is in the package comment of `mloader.go`.
 - `gofmt` and `go vet` are part of verification. Keep both clean, including the unsafe pointer rule.
+
+### C
+
+- Every declaration in the public header carries a `/* */` comment that states the contract, including buffer lifetime and failure conditions.
+- Internal helpers use the `static` keyword and the `ml_` prefix. C11 is the language baseline.
+- The example build uses `-Wall -Wextra` and stays warning free. The SDK has no third-party dependency, so do not add one for JSON.
 
 ### All languages
 
@@ -118,6 +124,12 @@ gofmt -l .
 go vet ./...
 ./example/build.sh
 node ../../conformance/abi.mjs --wasm example/dist/wasm-sdk-example-go/wasm_sdk_example.wasm
+cd ../..
+
+# C
+cd src/c_sdk
+./example/build.sh
+node ../../conformance/abi.mjs --wasm example/dist/wasm-sdk-example-c/wasm_sdk_example.wasm
 cd ../..
 ```
 
