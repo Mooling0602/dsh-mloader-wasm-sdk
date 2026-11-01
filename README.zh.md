@@ -1,8 +1,13 @@
 # dsh-mloader WASM SDK
 
+[English](README.md) | 简体中文
+
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的插件加载器 [dsh-mloader](https://github.com/Mooling0602/dsh-mloader) 所用的多语言 WebAssembly 插件 SDK。
 
 WebAssembly ABI 是语言中立的。插件是一个 WebAssembly 模块，导出五个函数加 `memory`，通过线性内存交换 UTF-8 JSON。`src/` 下的每个目录都是这套契约在一种语言里的薄封装，所有实现都附带同一份验收示例。
+
+[![dsh-mloader 徽章](https://img.shields.io/badge/powered_by-dsh--mloader-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/Mooling0602/dsh-mloader)
+[![MIT 协议徽章](https://img.shields.io/github/license/Mooling0602/dsh-mloader-wasm-sdk?style=flat-square)](https://github.com/Mooling0602/dsh-mloader-wasm-sdk/blob/main/LICENSE)
 
 ## 语言
 
@@ -86,4 +91,4 @@ Rust、Zig 与 C 产出没有宿主导入的模块。Go 产出导入 preview1 �
 
 ## 许可证
 
-MIT。
+MIT。见 [LICENSE](LICENSE)。

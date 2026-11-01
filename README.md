@@ -1,8 +1,13 @@
 # dsh-mloader WASM SDK
 
+English | [简体中文](README.zh.md)
+
 Multi-language SDKs for WebAssembly plugins hosted by [dsh-mloader](https://github.com/Mooling0602/dsh-mloader), the multi-runtime plugin loader for DeepSeek Harness.
 
 The WebAssembly ABI is language neutral. A plugin is a WebAssembly module that exports five functions plus `memory` and exchanges UTF-8 JSON through linear memory. Each directory in `src/` is a thin implementation of that contract for one language, and every implementation ships the same acceptance example.
+
+[![dsh-mloader-badge](https://img.shields.io/badge/powered_by-dsh--mloader-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/Mooling0602/dsh-mloader)
+[![license-mit-badge](https://img.shields.io/github/license/Mooling0602/dsh-mloader-wasm-sdk?style=flat-square)](https://github.com/Mooling0602/dsh-mloader-wasm-sdk/blob/main/LICENSE)
 
 ## Languages
 
@@ -86,4 +91,4 @@ Rust, Zig and C produce modules without host imports. Go produces a WASI reactor
 
 ## License
 
-MIT.
+MIT. See [LICENSE](LICENSE).
