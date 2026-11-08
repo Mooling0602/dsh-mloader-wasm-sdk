@@ -70,7 +70,7 @@ node conformance/abi.mjs --wasm src/c_sdk/example/dist/wasm-sdk-example-c/wasm_s
 
 ## 契约文档
 
-契约由加载器仓库维护。WebAssembly 相关部分见 [docs/wasm/WasmABI.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/wasm/WasmABI.md)，共享插件契约见 [docs/ABI-unified.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/ABI-unified.md)。
+契约由加载器仓库维护。WebAssembly 相关部分见 [docs/wasm/WasmABI.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/wasm/WasmABI.md)，共享插件契约见 [docs/ABI-unified.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/ABI-unified.md)，插件包布局见 [docs/wasm/Package.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/wasm/Package.md)。
 
 ## 仓库布局
 

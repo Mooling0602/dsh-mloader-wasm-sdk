@@ -70,7 +70,7 @@ Install at most one example plugin at a time. They share tool names, so a second
 
 ## Contract documents
 
-The contract is owned by the loader repository. The WebAssembly specific parts are in [docs/wasm/WasmABI.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/wasm/WasmABI.md), and the shared plugin contract is in [docs/ABI-unified.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/ABI-unified.md).
+The contract is owned by the loader repository. The WebAssembly specific parts are in [docs/wasm/WasmABI.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/wasm/WasmABI.md), the shared plugin contract is in [docs/ABI-unified.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/ABI-unified.md), and the package layout is in [docs/wasm/Package.md](https://github.com/Mooling0602/dsh-mloader/blob/main/docs/wasm/Package.md).
 
 ## Repository layout
 
