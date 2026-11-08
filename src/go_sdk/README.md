@@ -7,7 +7,7 @@ A Go module that exports wasm functions is a WASI reactor, not a command. The lo
 ## Requirements
 
 - Go 1.24 or newer. The module uses `-buildmode=c-shared` for `wasip1` and the `go:wasmexport` directive.
-- dsh with dsh-mloader installed, the WebAssembly backend enabled through `wasm.enabled`, and WASI reactor initialization support.
+- dsh with dsh-mloader installed and WASI reactor initialization support.
 - Node.js 20 or newer only for the conformance suite.
 
 `nix develop` at the repository root provides Go.
@@ -89,7 +89,7 @@ Write a manifest beside the module and point `entry` at it:
 }
 ```
 
-Place the directory under `<profile>/mloader/plugins/`, set `wasm.enabled: true` in the loader configuration, and restart dsh.
+Place the directory under `<profile>/mloader/plugins/` and restart dsh.
 
 ## The API
 

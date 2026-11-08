@@ -7,7 +7,7 @@ A C module is compiled together with the SDK as a WASI reactor. The SDK owns the
 ## Requirements
 
 - A C11 compiler with a `wasm32-wasip1` sysroot. `zig cc` from Zig 0.17 provides both, and the repository dev shell provides Zig.
-- dsh with dsh-mloader installed, the WebAssembly backend enabled through `wasm.enabled`, and WASI reactor initialization support.
+- dsh with dsh-mloader installed and WASI reactor initialization support.
 - Node.js 20 or newer only for the conformance suite.
 
 The SDK has no third-party dependency. The JSON support covers what the ABI needs and the plugin writes tool results as JSON text.
@@ -67,7 +67,7 @@ Write a manifest beside the module and point `entry` at it:
 }
 ```
 
-Place the directory under `<profile>/mloader/plugins/`, set `wasm.enabled: true` in the loader configuration, and restart dsh.
+Place the directory under `<profile>/mloader/plugins/` and restart dsh.
 
 ## The API
 

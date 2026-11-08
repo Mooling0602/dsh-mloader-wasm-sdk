@@ -6,7 +6,7 @@ Rust implementation of the dsh-mloader WebAssembly core ABI version 1. This crat
 
 - Rust stable with the `wasm32-unknown-unknown` target. `rust-toolchain.toml` installs it for rustup users.
 - A wasm linker. A rustc installation that does not bundle one needs `lld`.
-- dsh with dsh-mloader installed and the WebAssembly backend enabled through `wasm.enabled`.
+- dsh with dsh-mloader installed.
 
 `nix develop` at the repository root provides the toolchain, the wasm target and `lld`.
 
@@ -67,7 +67,7 @@ Write a manifest beside the module and point `entry` at it:
 }
 ```
 
-Place the directory under `<profile>/mloader/plugins/`, set `wasm.enabled: true` in the loader configuration, and restart dsh.
+Place the directory under `<profile>/mloader/plugins/` and restart dsh.
 
 ## The API
 

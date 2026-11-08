@@ -27,7 +27,7 @@ All four implementations target core ABI version 1 and pass the same conformance
 - Go 1.24 or newer for the Go SDK.
 - A wasm linker. The Rust example needs `lld`.
 - Node.js 20 or newer for the conformance suite.
-- dsh with dsh-mloader installed and the WebAssembly backend enabled through `wasm.enabled`.
+- dsh with dsh-mloader installed.
 
 The repository ships `flake.nix`, so `nix develop` provides every tool above without changing the system.
 

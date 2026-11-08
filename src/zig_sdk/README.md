@@ -5,7 +5,7 @@ Zig module for the dsh-mloader WebAssembly core ABI version 1. This module is th
 ## Requirements
 
 - Zig 0.17.
-- dsh with dsh-mloader installed and the WebAssembly backend enabled through `wasm.enabled`.
+- dsh with dsh-mloader installed.
 
 `nix develop` at the repository root provides Zig.
 
@@ -103,7 +103,7 @@ Write a manifest beside the module and point `entry` at it:
 }
 ```
 
-Place the directory under `<profile>/mloader/plugins/`, set `wasm.enabled: true` in the loader configuration, and restart dsh.
+Place the directory under `<profile>/mloader/plugins/` and restart dsh.
 
 ## The API
 

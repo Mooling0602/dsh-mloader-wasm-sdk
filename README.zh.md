@@ -27,7 +27,7 @@ WebAssembly ABI 是语言中立的。插件是一个 WebAssembly 模块，导出
 - Go 1.24 或更新版本，用于 Go SDK。
 - 一个 wasm 链接器。Rust 示例需要 `lld`。
 - Node.js 20 或更新版本，用于一致性套件。
-- 已安装 dsh 与 dsh-mloader，并通过 `wasm.enabled` 启用 WebAssembly 后端。
+- 已安装 dsh 与 dsh-mloader。
 
 仓库附带 `flake.nix`，因此 `nix develop` 会在不修改系统的前提下提供以上全部工具。
 
